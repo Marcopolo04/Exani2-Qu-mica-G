@@ -3,162 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Ceneval - Química</title>
+    <title>Examen Química Ceneval 60</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-        .question { margin-bottom: 25px; padding: 15px; border-left: 5px solid #3498db; background: #fafafa; }
-        .options { list-style: none; padding: 0; }
-        .options li { margin: 10px 0; }
-        button { background: #3498db; color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-size: 16px; display: block; margin: 20px auto; }
-        button:hover { background: #2980b9; }
-        .feedback { margin-top: 10px; padding: 10px; border-radius: 5px; display: none; font-size: 0.9em; }
-        .correct { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .incorrect { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .score-container { text-align: center; font-size: 1.5em; font-weight: bold; margin-bottom: 20px; color: #2c3e50; }
-        .math { font-style: italic; font-family: 'Courier New', Courier, monospace; }
+        body { font-family: sans-serif; background: #eceff1; padding: 20px; }
+        .quiz-container { max-width: 850px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .question { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .options { margin: 10px 0; }
+        .feedback { display: none; margin-top: 10px; padding: 10px; border-radius: 4px; font-size: 0.9em; }
+        .correct { background: #d4edda; color: #155724; }
+        .incorrect { background: #f8d7da; color: #721c24; }
+        .btn { background: #1a73e8; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; }
+        #nombre-seccion { margin-bottom: 30px; padding: 20px; background: #e8f0fe; border-radius: 5px; }
+        input[type="text"] { padding: 8px; width: 250px; margin-left: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Simulador de Química Tipo Ceneval</h1>
-    <p style="text-align: center;">Responde las 60 preguntas para evaluar tus conocimientos.</p>
-    <hr>
-    <div id="quiz"></div>
-    <button id="submit">Finalizar Examen y Ver Retroalimentación</button>
-    <div id="results"></div>
+<div class="quiz-container">
+    <h1>Examen de Simulación Química (60 Preguntas)</h1>
+    
+    <div id="nombre-seccion">
+        <label>Escribe tu nombre completo para comenzar:</label>
+        <input type="text" id="studentName" placeholder="Nombre del alumno...">
+    </div>
+
+    <div id="quiz-content"></div>
+    
+    <button class="btn" id="btn-finalizar">Enviar Resultados</button>
+    <div id="resultado-final" style="margin-top:20px; font-weight:bold; font-size:1.2em;"></div>
 </div>
 
 <script>
-const quizData = [
-    // --- BLOQUE 1: MATERIA Y ESTRUCTURA ---
-    { q: "¿Cuál es un ejemplo de un compuesto?", a: ["CO", "O3", "Cl2"], c: 0, f: "El CO (monóxido de carbono) tiene dos elementos diferentes unidos químicamente." },
-    { q: "Partícula subatómica con carga positiva:", a: ["Electrón", "Neutrón", "Protón"], c: 2, f: "El protón define la identidad del átomo y tiene carga positiva." },
-    { q: "Un átomo neutro con Z=11 tiene:", a: ["11 protones y 11 electrones", "11 protones y 12 electrones", "11 neutrones"], c: 0, f: "En estado neutro, la carga positiva (p) iguala a la negativa (e)." },
-    { q: "Sustancia que no puede descomponerse en otras más simples por medios químicos:", a: ["Compuesto", "Mezcla", "Elemento"], c: 2, f: "Los elementos son la unidad básica de la materia química." },
-    { q: "La suma de protones y neutrones determina:", a: ["El número atómico", "La masa atómica", "La carga iónica"], c: 1, f: "A = Z + n." },
-    { q: "¿Cuál es una mezcla homogénea?", a: ["Agua y aceite", "Aire purificado", "Ensalada"], c: 1, f: "En el aire no se distinguen sus componentes a simple vista." },
-    { q: "Científico que propuso el modelo atómico de 'budín de pasas':", a: ["Rutherford", "Thomson", "Bohr"], c: 1, f: "J.J. Thomson descubrió el electrón y propuso este modelo inicial." },
-    { q: "Los isótopos de un elemento tienen diferente número de:", a: ["Protones", "Electrones", "Neutrones"], c: 2, f: "Tienen el mismo Z pero diferente número de neutrones." },
-    { q: "Cambio de estado de gas a líquido:", a: ["Condensación", "Sublimación", "Evaporación"], c: 0, f: "La condensación ocurre al enfriar un gas." },
-    { q: "Propiedad intensiva de la materia:", a: ["Masa", "Densidad", "Volumen"], c: 1, f: "La densidad no depende de la cantidad de materia." },
+const scriptURL = 'TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI'; // <--- PEGA AQUÍ TU URL
 
-    // --- BLOQUE 2: TABLA PERIÓDICA Y ENLACES ---
-    { q: "Los gases nobles se ubican en el grupo:", a: ["17", "1", "18"], c: 2, f: "Son elementos con su capa de valencia completa." },
-    { q: "Elemento más electronegativo de la tabla periódica:", a: ["Flúor", "Oxígeno", "Francio"], c: 0, f: "El Flúor atrae electrones con mayor fuerza." },
-    { q: "Enlace formado por transferencia de electrones entre un metal y un no metal:", a: ["Covalente", "Iónico", "Metálico"], c: 1, f: "Se forman iones que se atraen electrostáticamente." },
-    { q: "Las filas horizontales en la tabla periódica se llaman:", a: ["Grupos", "Familias", "Periodos"], c: 2, f: "Indican el nivel de energía más externo." },
-    { q: "Capacidad de un átomo para atraer electrones en un enlace:", a: ["Afinidad electrónica", "Electronegatividad", "Energía de ionización"], c: 1, f: "Definición clásica de Pauling." },
-    { q: "Enlace donde se comparten pares de electrones de forma equitativa:", a: ["Iónico", "Covalente polar", "Covalente no polar"], c: 2, f: "Ocurre entre átomos con electronegatividades iguales." },
-    { q: "¿Qué indica el grupo en la tabla periódica?", a: ["Niveles de energía", "Electrones de valencia", "Número de neutrones"], c: 1, f: "Elementos del mismo grupo tienen propiedades químicas similares." },
-    { q: "Los metales alcalinos pertenecen al grupo:", a: ["1 (IA)", "2 (IIA)", "17 (VIIA)"], c: 0, f: "Ejemplos: Li, Na, K." },
-    { q: "Tipo de enlace en la molécula de O2:", a: ["Iónico", "Covalente", "Metálico"], c: 1, f: "Se comparten electrones entre dos no metales." },
-    { q: "Fuerza intermolecular responsable del alto punto de ebullición del agua:", a: ["Fuerzas de London", "Puentes de hidrógeno", "Dipolo-dipolo"], c: 1, f: "El hidrógeno se une a átomos muy electronegativos (O, N, F)." },
-
-    // --- BLOQUE 3: REACCIONES Y ESTEQUIOMETRÍA ---
-    { q: "La ley de conservación de la masa fue propuesta por:", a: ["Dalton", "Lavoisier", "Proust"], c: 1, f: "En una reacción química, la masa permanece constante." },
-    { q: "Un mol de cualquier sustancia contiene:", a: ["6.022x10^23 partículas", "100 g", "22.4 partículas"], c: 0, f: "Es el número de Avogadro." },
-    { q: "¿Qué valor de pH es básico?", a: ["2", "7", "11"], c: 2, f: "Ph > 7 es base o alcalino." },
-    { q: "Reacción que libera calor al entorno:", a: ["Endotérmica", "Exotérmica", "Isotérmica"], c: 1, f: "Ejemplo: combustión." },
-    { q: "En la reacción HCl + NaOH -> NaCl + H2O, el NaCl es:", a: ["Ácido", "Base", "Sal"], c: 2, f: "Es el producto de la neutralización." },
-    { q: "Estado de agregación con forma y volumen definido:", a: ["Sólido", "Líquido", "Gas"], c: 0, f: "Sus partículas están muy juntas y organizadas." },
-    { q: "Masa molar del H2O (H=1, O=16):", a: ["17 g/mol", "18 g/mol", "16 g/mol"], c: 1, f: "(1x2) + 16 = 18." },
-    { q: "Compuesto que reacciona con agua para formar una base:", a: ["SO2", "CaO", "CO2"], c: 1, f: "Óxido metálico + agua = hidróxido." },
-    { q: "Proceso donde un átomo pierde electrones:", a: ["Reducción", "Oxidación", "Neutralización"], c: 1, f: "Oxidación es pérdida de electrones." },
-    { q: "En la ecuación 2H2 + O2 -> 2H2O, ¿cuántos moles de agua se producen de 1 mol de O2?", a: ["1", "2", "4"], c: 1, f: "La relación estequiométrica es 1:2." },
-
-    // --- BLOQUE 4: QUÍMICA ORGÁNICA Y BIOMOLÉCULAS ---
-    { q: "Elemento base de la química orgánica:", a: ["Oxígeno", "Nitrógeno", "Carbono"], c: 2, f: "El carbono forma cadenas largas y estables." },
-    { q: "Grupo funcional de los ácidos carboxílicos:", a: ["-OH", "-COOH", "-CHO"], c: 1, f: "Se encuentra en ácidos grasos y vinagre." },
-    { q: "Hidrocarburo con solo enlaces sencillos:", a: ["Alcano", "Alqueno", "Alquino"], c: 0, f: "Sufijo -ano (metano, etano)." },
-    { q: "Función principal de los carbohidratos:", a: ["Reserva genética", "Energía inmediata", "Estructural ósea"], c: 1, f: "La glucosa es el combustible celular principal." },
-    { q: "Los aminoácidos son las unidades básicas de:", a: ["Lípidos", "Proteínas", "Vitaminas"], c: 1, f: "Se unen mediante enlaces peptídicos." },
-    { q: "Biomolécula insoluble en agua que almacena energía a largo plazo:", a: ["Glúcido", "Lípido", "Proteína"], c: 1, f: "Ejemplos: grasas y aceites." },
-    { q: "Azúcar presente en el ADN:", a: ["Ribosa", "Desoxirribosa", "Fructosa"], c: 1, f: "Ácido DESOXI-rribonucleico." },
-    { q: "Grupo funcional de las cetonas:", a: ["R-CO-R", "R-O-R", "R-OH"], c: 0, f: "Carbonilo interno." },
-    { q: "Número de enlaces que forma el carbono habitualmente:", a: ["2", "4", "6"], c: 1, f: "Es tetravalente." },
-    { q: "Gas más abundante en la atmósfera terrestre:", a: ["Oxígeno", "Argón", "Nitrógeno"], c: 2, f: "Aproximadamente el 78% del aire." },
-
-    // --- BLOQUE 5: REPASO Y CONCEPTOS CENEVAL ---
-    { q: "¿Cómo se incrementa la energía cinética de un sistema?", a: ["Subiendo la temperatura", "Bajando la presión", "Añadiendo soluto"], c: 0, f: "T es proporcional a la velocidad molecular." },
-    { q: "Sustancia que acelera una reacción sin consumirse:", a: ["Inhibidor", "Catalizador", "Reactivo"], c: 1, f: "Baja la energía de activación." },
-    { q: "Unidad para medir la cantidad de sustancia:", a: ["Gramo", "Mol", "Litro"], c: 1, f: "El mol es la unidad básica del SI para cantidad." },
-    { q: "Masa de 0.5 moles de Na2CO3 (Masa molar = 106 g/mol):", a: ["212 g", "53 g", "106 g"], c: 1, f: "0.5 * 106 = 53." },
-    { q: "El pH de la sangre humana es aproximadamente:", a: ["2.0", "7.4", "12.0"], c: 1, f: "Es ligeramente básico." },
-    { q: "Enlace en el que los electrones fluyen libremente por la estructura:", a: ["Covalente", "Metálico", "Iónico"], c: 1, f: "Explica la conductividad de los metales." },
-    { q: "Hibridación del carbono en un alcano (enlace simple):", a: ["sp", "sp2", "sp3"], c: 2, f: "Geometría tetraédrica." },
-    { q: "¿Cuál es un óxido ácido (anhídrido)?", a: ["MgO", "CO2", "Na2O"], c: 1, f: "No metal + Oxígeno." },
-    { q: "La alanina es un ejemplo de:", a: ["Lípido", "Carbohidrato", "Aminoácido"], c: 2, f: "Es uno de los 20 aminoácidos esenciales para proteínas." },
-    { q: "Componente principal del gas natural:", a: ["Metano", "Butano", "Propano"], c: 0, f: "CH4 es el componente mayoritario." },
-    { q: "Un sistema en equilibrio químico tiene:", a: ["Velocidades iguales", "Mismas concentraciones", "Reacción detenida"], c: 0, f: "Velocidad directa = Velocidad inversa." },
-    { q: "Enlace característico de las proteínas:", a: ["Ester", "Glucosídico", "Peptídico"], c: 2, f: "Une el grupo amino con el carboxilo." },
-    { q: "Propiedad de los metales para hacerse láminas:", a: ["Ductilidad", "Maleabilidad", "Dureza"], c: 1, f: "La ductilidad es para hilos/alambres." },
-    { q: "¿Qué gas se desprende al reaccionar un metal con un ácido?", a: ["Oxígeno", "Hidrógeno", "Cloro"], c: 1, f: "Se produce una sal y gas hidrógeno (H2)." },
-    { q: "El enlace en la sal de mesa (NaCl) es:", a: ["Iónico", "Covalente", "Polar"], c: 0, f: "Entre metal alcalino y halógeno." },
-    { q: "La glucosa es una:", a: ["Pentosa", "Hexosa", "Disacárido"], c: 1, f: "Tiene 6 átomos de carbono." },
-    { q: "Proceso de quemar madera es una reacción de:", a: ["Sustitución", "Combustión", "Adición"], c: 1, f: "Requiere combustible y comburente (O2)." },
-    { q: "Nombre del grupo funcional -CHO:", a: ["Éster", "Cetona", "Aldehído"], c: 2, f: "Aldehídos terminan en -al." },
-    { q: "Isótopo del hidrógeno con un neutrón:", a: ["Protio", "Deuterio", "Tritio"], c: 1, f: "Protio (0n), Deuterio (1n), Tritio (2n)." },
-    { q: "Relación de moles de soluto por litro de disolución:", a: ["Molalidad", "Molaridad", "Normalidad"], c: 1, f: "M = n / V(L)." }
+const questions = [
+    { q: "¿Cuál es un compuesto?", a: ["CO", "O3", "Cl2"], c: 0, f: "El CO combina Carbono y Oxígeno." },
+    { q: "Número atómico 25 y masa 55 tiene:", a: ["25p, 25e, 30n", "25p, 25e, 55n", "30p, 25e, 25n"], c: 0, f: "n = 55 - 25 = 30." },
+    { q: "En la tabla periódica, las columnas son:", a: ["Periodos", "Grupos", "Niveles"], c: 1, f: "Los grupos agrupan elementos con propiedades similares." },
+    { q: "Forman ácidos al reaccionar con agua:", a: ["Óxidos metálicos", "Anhídridos (No metales)", "Sales"], c: 1, f: "Ejemplo: SO2 + H2O -> H2SO3." },
+    { q: "Masa molar del Na2CO3 (Na:23, C:12, O:16):", a: ["106 g/mol", "83 g/mol", "53 g/mol"], c: 0, f: "(23x2)+12+(16x3) = 106." },
+    { q: "Partícula con carga negativa:", a: ["Protón", "Electrón", "Neutrón"], c: 1, f: "Los electrones orbitan el núcleo." },
+    { q: "Enlace por compartición de electrones:", a: ["Iónico", "Covalente", "Metálico"], c: 1, f: "Típico entre no metales." },
+    { q: "Mezcla donde no se distinguen fases:", a: ["Heterogénea", "Homogénea", "Compuesto"], c: 1, f: "Como el aire o el agua con sal." },
+    { q: "Aminoácidos forman:", a: ["Proteínas", "Lípidos", "Carbohidratos"], c: 0, f: "Son los bloques de construcción de las proteínas." },
+    { q: "Grupo funcional -OH:", a: ["Ácido", "Alcohol", "Aldehído"], c: 1, f: "Es el grupo hidroxilo." },
+    // ... (Se repite la lógica para las 60 preguntas basadas en el documento)
+    { q: "¿Cómo aumentar la energía cinética?", a: ["Bajar presión", "Subir temperatura", "Más volumen"], c: 1, f: "T es proporcional a la energía cinética." },
+    { q: "0.5 moles de Na2CO3 equivalen a:", a: ["106g", "53g", "212g"], c: 1, f: "0.5 * 106 = 53g." },
+    { q: "Gas más abundante en la atmósfera:", a: ["Oxígeno", "Nitrógeno", "Argón"], c: 1, f: "El Nitrógeno ocupa el 78%." },
+    { q: "Un pH de 2 es:", a: ["Ácido", "Básico", "Neutro"], c: 0, f: "Menor a 7 es ácido." },
+    { q: "Principal reserva de energía a largo plazo:", a: ["Glúcidos", "Lípidos", "Proteínas"], c: 1, f: "Las grasas almacenan más energía por gramo." },
+    { q: "Propuso la ley de conservación de masa:", a: ["Dalton", "Lavoisier", "Bohr"], c: 1, f: "Antoine Lavoisier." },
+    { q: "Enlace en el NaCl:", a: ["Iónico", "Covalente", "Metálico"], c: 0, f: "Transferencia de e- entre metal y no metal." },
+    { q: "El ADN contiene el azúcar:", a: ["Ribosa", "Desoxirribosa", "Glucosa"], c: 1, f: "Desoxirribosa le da nombre al ADN." },
+    { q: "Hibridación en alcanos:", a: ["sp", "sp2", "sp3"], c: 2, f: "Forman enlaces sencillos tetraédricos." },
+    { q: "Sustancia que acelera reacciones:", a: ["Catalizador", "Inhibidor", "Solvente"], c: 0, f: "Reduce la energía de activación." },
+    { q: "Cambio de sólido a gas directo:", a: ["Fusión", "Sublimación", "Vaporización"], c: 1, f: "Como el hielo seco." },
+    { q: "Base nitrogenada exclusiva del ARN:", a: ["Timina", "Uracilo", "Adenina"], c: 1, f: "El Uracilo reemplaza a la Timina en ARN." },
+    { q: "Elemento en proteínas y gas atmosférico:", a: ["Oxígeno", "Nitrógeno", "Hidrógeno"], c: 1, f: "Nitrógeno." },
+    { q: "Fórmula del amoníaco:", a: ["NH3", "CH4", "H2O"], c: 0, f: "Es una base débil común." },
+    { q: "Unidad de herencia genética:", a: ["Gen", "Proteína", "Lípido"], c: 0, f: "Segmento de ADN." },
+    { q: "Propiedad de estirarse en hilos:", a: ["Maleabilidad", "Ductilidad", "Brillo"], c: 1, f: "Característica de metales como el cobre." },
+    { q: "La glucosa es un:", a: ["Monosacárido", "Disacárido", "Polisacárido"], c: 0, f: "Es el azúcar más simple." },
+    { q: "Enlace que une aminoácidos:", a: ["Glucosídico", "Peptídico", "Ester"], c: 1, f: "Une el C=O con el N-H." },
+    { q: "Símbolo del Oro:", a: ["Ag", "Au", "Fe"], c: 1, f: "Del latín Aurum." },
+    { q: "Solución con máximo soluto posible:", a: ["Diluida", "Saturada", "Sobresaturada"], c: 1, f: "Ha llegado a su límite de equilibrio." },
+    // Se añaden 30 preguntas adicionales siguiendo el mismo patrón...
+    { q: "Partícula sin carga:", a: ["Protón", "Neutrón", "Electrón"], c: 1, f: "El neutrón está en el núcleo." },
+    { q: "Metales alcalinos están en el grupo:", a: ["1", "2", "17"], c: 0, f: "Grupo 1A." },
+    { q: "Producto de Ácido + Base:", a: ["Sal + Agua", "Gas", "Óxido"], c: 0, f: "Reacción de neutralización." },
+    { q: "Valencia del Carbono:", a: ["2", "4", "6"], c: 1, f: "Es tetravalente." },
+    { q: "Ejemplo de gas noble:", a: ["Helio", "Cloro", "Nitrógeno"], c: 0, f: "Grupo 18." },
+    { q: "Enlace en metales:", a: ["Iónico", "Covalente", "Nube electrónica"], c: 2, f: "Electrones libres." },
+    { q: "Energía de movimiento:", a: ["Potencial", "Cinética", "Térmica"], c: 1, f: "Ec = 1/2 mv²." },
+    { q: "Fórmula del ácido sulfúrico:", a: ["HCl", "H2SO4", "HNO3"], c: 1, f: "Ácido fuerte común." },
+    { q: "Oxidación es:", a: ["Ganar e-", "Perder e-", "Ganar protones"], c: 1, f: "El número de oxidación aumenta." },
+    { q: "Los lípidos son:", a: ["Hidrofílicos", "Hidrofóbicos", "Metales"], c: 1, f: "No se mezclan con agua." },
+    { q: "Isótopos tienen igual número de:", a: ["Neutrones", "Protones", "Masa"], c: 1, f: "Mismo elemento, distinta masa." },
+    { q: "El aire es:", a: ["Mezcla", "Compuesto", "Elemento"], c: 0, f: "Nitrógeno, Oxígeno y otros." },
+    { q: "Estructura del ADN es:", a: ["Lineal", "Doble hélice", "Circular"], c: 1, f: "Propuesto por Watson y Crick." },
+    { q: "PH neutro es:", a: ["0", "7", "14"], c: 1, f: "Como el agua pura." },
+    { q: "Enlace en el agua:", a: ["Covalente polar", "Iónico", "No polar"], c: 0, f: "Diferencia de electronegatividad." },
+    { q: "Alquinos tienen enlace:", a: ["Simple", "Doble", "Triple"], c: 2, f: "Terminación -ino." },
+    { q: "Bioelemento primario:", a: ["Hierro", "Carbono", "Zinc"], c: 1, f: "CHONSP." },
+    { q: "Masa del protón es similar al:", a: ["Electrón", "Neutrón", "Positrón"], c: 1, f: "Ambos valen aprox 1 uma." },
+    { q: "Estado de las estrellas:", a: ["Líquido", "Gaseoso", "Plasma"], c: 2, f: "Gas ionizado." },
+    { q: "Olor a huevo podrido es:", a: ["H2S", "CO2", "NH3"], c: 0, f: "Ácido sulfhídrico." },
+    { q: "Representa los niveles de energía:", a: ["Grupo", "Periodo", "Bloque"], c: 1, f: "Filas horizontales." },
+    { q: "Proteína que transporta oxígeno:", a: ["Insulina", "Hemoglobina", "Queratina"], c: 1, f: "En los glóbulos rojos." },
+    { q: "Reacción A + B -> AB es de:", a: ["Síntesis", "Análisis", "Sustitución"], c: 0, f: "Combinación de reactivos." },
+    { q: "Unidad de masa atómica:", a: ["Gramo", "Uma", "Mol"], c: 1, f: "Basada en el Carbono-12." },
+    { q: "Elemento maleable y conductor:", a: ["Azufre", "Cobre", "Argón"], c: 1, f: "Características metálicas." },
+    { q: "Enzimas son:", a: ["Catalizadores", "Azúcares", "Grasas"], c: 0, f: "Aceleran procesos biológicos." },
+    { q: "La sacarosa es:", a: ["Glucosa+Fructosa", "Glucosa+Glucosa", "Azúcar simple"], c: 0, f: "Es un disacárido." },
+    { q: "El enlace O-O en O2 es:", a: ["Polar", "No polar", "Iónico"], c: 1, f: "Átomos iguales." },
+    { q: "Átomo con carga:", a: ["Isótopo", "Ion", "Molécula"], c: 1, f: "Catión (+) o Anión (-)." },
+    { q: "Estudio de compuestos con Carbono:", a: ["Inorgánica", "Orgánica", "Analítica"], c: 1, f: "Química de la vida." }
 ];
 
-const quizContainer = document.getElementById('quiz');
-const resultsContainer = document.getElementById('results');
-const submitButton = document.getElementById('submit');
+const container = document.getElementById('quiz-content');
+questions.forEach((q, i) => {
+    container.innerHTML += `
+        <div class="question">
+            <strong>${i+1}. ${q.q}</strong><br>
+            <div class="options">
+                ${q.a.map((opt, idx) => `<label><input type="radio" name="q${i}" value="${idx}"> ${opt}</label><br>`).join('')}
+            </div>
+            <div id="f${i}" class="feedback"></div>
+        </div>
+    `;
+});
 
-function buildQuiz() {
-    const output = [];
-    quizData.forEach((currentQuestion, questionNumber) => {
-        const answers = [];
-        for(let i=0; i<3; i++){
-            answers.push(
-                `<label>
-                    <input type="radio" name="question${questionNumber}" value="${i}">
-                    ${currentQuestion.a[i]}
-                </label><br>`
-            );
-        }
-        output.push(
-            `<div class="question">
-                <div class="title"><b>${questionNumber + 1}. ${currentQuestion.q}</b></div>
-                <div class="options">${answers.join('')}</div>
-                <div id="feedback${questionNumber}" class="feedback"></div>
-            </div>`
-        );
-    });
-    quizContainer.innerHTML = output.join('');
-}
-
-function showResults() {
-    const answerContainers = quizContainer.querySelectorAll('.options');
-    let numCorrect = 0;
-
-    quizData.forEach((currentQuestion, questionNumber) => {
-        const answerContainer = answerContainers[questionNumber];
-        const selector = `input[name=question${questionNumber}]:checked`;
-        const userAnswer = (answerContainer.querySelector(selector) || {}).value;
-        const feedbackDiv = document.getElementById(`feedback${questionNumber}`);
-
-        feedbackDiv.style.display = "block";
-        if(userAnswer == currentQuestion.c) {
-            numCorrect++;
-            feedbackDiv.innerHTML = `✅ ¡Correcto! ${currentQuestion.f}`;
-            feedbackDiv.className = "feedback correct";
+document.getElementById('btn-finalizar').onclick = function() {
+    const nombre = document.getElementById('studentName').value;
+    if(!nombre) { alert("Por favor escribe tu nombre"); return; }
+    
+    let aciertos = 0;
+    questions.forEach((q, i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        const feedback = document.getElementById(`f${i}`);
+        feedback.style.display = "block";
+        
+        if(selected && selected.value == q.c) {
+            aciertos++;
+            feedback.innerHTML = "✅ " + q.f;
+            feedback.className = "feedback correct";
         } else {
-            feedbackDiv.innerHTML = `❌ Incorrecto. La respuesta era: ${currentQuestion.a[currentQuestion.c]}. ${currentQuestion.f}`;
-            feedbackDiv.className = "feedback incorrect";
+            feedback.innerHTML = "❌ Correcta: " + q.a[q.c] + ". " + q.f;
+            feedback.className = "feedback incorrect";
         }
     });
 
-    resultsContainer.innerHTML = `<div class="score-container">Resultado Final: ${numCorrect} de ${quizData.length} (${((numCorrect/quizData.length)*100).toFixed(1)}%)</div>`;
-    window.scrollTo(0,0);
-}
+    const porcentaje = ((aciertos/60)*100).toFixed(1) + "%";
+    document.getElementById('resultado-final').innerHTML = `Resultado: ${aciertos}/60 (${porcentaje})`;
 
-buildQuiz();
-submitButton.addEventListener('click', showResults);
+    // ENVIAR A GOOGLE SHEETS
+    fetch(scriptURL, {https://script.google.com/macros/s/AKfycbwUJaStbo1iXMTuD1R8nkYKFlbUwVzWtfFLL6ntH6Cl3rutbYyg_UH_32hPobWpmpkkQA/exec}
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: nombre, aciertos: aciertos, porcentaje: porcentaje })
+    }).then(() => alert("Resultados enviados a la hoja de cálculo del profesor."));
+};
 </script>
-
 </body>
 </html>
